@@ -1,0 +1,335 @@
+<!doctype html>
+<html lang="en">
+
+	<head>
+		<meta charset="utf-8">
+
+		<title>Cross-site scripting</title>
+
+		<meta name="description" content="A framework for easily creating beautiful presentations using HTML">
+		<meta name="author" content="Hakim El Hattab">
+
+		<meta name="apple-mobile-web-app-capable" content="yes" />
+		<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+
+		<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, minimal-ui">
+
+		<link rel="stylesheet" href="css/reveal.css">
+		<link rel="stylesheet" href="css/theme/black.css" id="theme">
+
+		<!-- Code syntax highlighting -->
+		<link rel="stylesheet" href="lib/css/zenburn.css">
+
+		<!-- Printing and PDF exports -->
+		<script>
+			var link = document.createElement( 'link' );
+			link.rel = 'stylesheet';
+			link.type = 'text/css';
+			link.href = window.location.search.match( /print-pdf/gi ) ? 'css/print/pdf.css' : 'css/print/paper.css';
+			document.getElementsByTagName( 'head' )[0].appendChild( link );
+		</script>
+
+		<style type="text/css">
+			.keycode {
+				color: #FFCC33;
+			}
+
+			.code {
+				font-family: monospace !important;
+			}
+
+			.reveal .slides li, .reveal .slides p {
+				text-align: left;
+			}
+		</style>
+
+		<!--[if lt IE 9]>
+		<script src="lib/js/html5shiv.js"></script>
+		<![endif]-->
+	</head>
+
+	<body>
+
+		<div class="reveal">
+
+			<!-- Any section element inside of this container is displayed as a slide -->
+			<div class="slides">
+				<section>
+					<h1>Cross-site scripting</h1>
+				</section>
+
+				<section>
+					<h2>What is cross-site scripting?</h2>
+					<span class="fragment">
+						<p>
+							<q cite="https://en.wikipedia.org/wiki/Cross-site_scripting">
+								Cross-site scripting is a type of computer security vulnerability.
+								XSS enables attackers to <strong>inject client-side scripts into Web pages viewed by
+								other users</strong>.
+							</q>
+							(Wikipedia)
+						</p>
+
+					</span>
+				</section>
+
+				<!-- Example of nested vertical slides -->
+				<section>
+					<section>
+						<h2>A quick and dirty example</h2>
+						<p>I'm going to show you a vulnerable application.</p>
+						<p>How would you try to execute JavaScript code inside it?</p>
+					</section>
+					<section>
+						<iframe src="http://localhost/xss/index.html" style="height: 100%; min-height: 600px; width: 100%; background-color: #FFF"></iframe>
+					</section>
+				</section>
+
+				<section>
+					<h2>How do we protect ourselves against this?</h2>
+					<ul>
+						<li>First idea: substitute &lt; and &gt; for &amp;lt; and &amp;gt;</li>
+						<span class="fragment">
+							<li>
+								<strong>Nope.</strong>
+								<br>
+								<span class="code">&lt;img src="something"&gt;</span>
+								<br>
+								can become
+								<br>
+								<span class="code">
+									&lt;img src="<span class="keycode">asdafs" onerror="evil_function()</span>"&gt;
+								</span>
+							</li>
+						</span>
+					</ul>
+				</section>
+
+				<section>
+					<h2>How do we protect ourselves against this?</h2>
+					<ul>
+						<li>Second idea: also substitute &quot; for &amp;quot;</li>
+						<span class="fragment">
+							<li>
+								<strong>Nope.</strong>
+								<br>
+								<span class="code">&lt;img src="something"&gt;</span>
+								<br>
+								can become
+								<br>
+								<span class="code">&lt;img src="<span class="keycode">javascript:evil_function();</span>"&gt;</span><br>
+								Fortunately, that doesn't work on new browsers!
+							</li>
+						</span>
+						<span class="fragment">
+							<li>The bad guys have a
+								<a href="https://www.owasp.org/index.php/XSS_Filter_Evasion_Cheat_Sheet">huge back of tricks!</a>
+							</li>
+						</span>
+					</ul>
+				</section>
+
+				<section>
+					<h2>Stored and reflected XSS</h2>
+					<ul>
+						<li>The previous attacks involved storing a mean piece of information in the server: that is called
+						<strong>stored XSS</strong>.</li>
+						<li>We can also craft a malicious URL, like<br>
+							http://website/page?name=<span class="keycode">&lt;script&gt;evil_function()&lt;/script&gt;</span>.<br>
+						This is an example of <b>reflected XSS</b>.</li>
+					</ul>
+				</section>
+
+				<section>
+					<h2>How common is XSS?</h2>
+					<ul>
+						<li>A recent study with automated tools found out 1,602 unique vulnerabilities in the Alexa
+							Top 10k websites.</li>
+						<span class="fragment">
+							<li>A consequence from Murphy's laws:
+								<br><q>As an application grows in complexity, so does the chance
+								that someone will screw up.</q></li>
+						</span>
+					</ul>
+				</section>
+
+				<section>
+					<h2>How to destroy your reputation in 30 seconds</h2>
+					<span style="text-align: center">
+						<iframe src="https://www.youtube.com/embed/K0noqLisW_c" width="640" height="480"></iframe>
+					</span>
+				</section>
+
+				<section>
+					<h2>Countermeasures</h2>
+					<ul>
+						<li>What do you think is the most obvious way to protect ourselves against XSS?</li>
+						<span class="fragment">
+							<li><strong>Sanitize all inputs!</strong></li>
+						</span>
+						<span class="fragment">
+							<li>Particularly, escape HTML: &amp;, &lt;, &gt;, &quot;, &apos; and &#47;.</li>
+							<li>Never put untrusted data inside:</li>
+							<ul>
+								<li>&lt;script&gt; tags</li>
+								<li>a HTML comment</li>
+								<li>a HTML attribute name</li>
+								<li>a tag name</li>
+								<li>CSS</li>
+							</ul>
+						</span>
+					</ul>
+				</section>
+
+				<section>
+					<h2>Countermeasures (2)</h2>
+					<ul>
+						<li>Use established security tools and frameworks (implementing sanitizing filters yourself is
+							<b>NOT</b> recommended!)</li>
+						<li>Content Security Policy</li>
+						<li>Subresource Integrity</li>
+						<li>Protection tools in web browsers (e.g., Chrome's XSS Auditor)</li>
+						<span class="fragment">
+							<ul>
+								<li>Just kidding, they don't really work. :-)</li>
+							</ul>
+						</span>
+					</ul>
+				</section>
+
+				<section>
+					<h2>Content Security Policy</h2>
+					<ul>
+						<li>Wouldn't it be cool if we could specify a whitelist of domains from where JavaScript is
+							acceptable and forbid everything else?</li>
+						<span class="fragment">
+						<li>
+							<span class="code">Content-Security-Policy: script-src 'self' https://apis.google.com</span>
+						</li>
+						</span>
+						<span class="fragment">
+							<li>Allows you to specify from which domains scripts, images, objects and such elements can
+								be loaded.</li>
+							<li>Forbids inline JavaScript and functions like eval() unless explicitly asked to.</li>
+						</span>
+						<span class="fragment">
+							<li>It doesn't work on IE. Use X-Content-Security-Policy instead. :-)</li>
+						</span>
+					</ul>
+				</section>
+
+				<section>
+					<h2>Subresource Integrity</h2>
+					<li>Let's change our point of view for a moment...</li>
+					<li>We've been talking about allowing to execute only the JavaScript we trust.</li>
+					<span class="fragment">
+						<li>Can a JavaScript file from a trusted partner become malicious?</li>
+					</span>
+					<span class="fragment">
+						<img src="jquery.png">
+					</span>
+				</section>
+
+				<section>
+					<h2>Subresource Integrity (2)</h2>
+					<p><span class="code">
+						&lt;script src="https://analytics-r-us.example.com/v1.0/include.js"
+								integrity="sha256-Rj/9XDU7F6pNSX8yBddiCIIS+XKDTtdq0//No0MH0AE="
+								crossorigin="anonymous"&gt;&lt;/script&gt;
+					</span></p>
+					<span class="fragment">
+						<li>Main idea: specify a hash (or more) for each file we load.</li>
+						<li>Unsupported in most browsers yet, but it'll be there soon.</li>
+					</span>
+				</section>
+
+				<section>
+					<h2>To sum up...</h2>
+					<li>Cross-site scripting involves an attacker executing malicious code</li>
+					<li>A XSS vulnerability allows the attacker to control the whole website</li>
+					<li>How to avoid: sanitize, sanitize, sanitize!</li>
+					<li>There are some fancy new countermeasures like Content Security Policy and Subresource Integrity.</li>
+				</section>
+
+				<section>
+					<h2>That's it!</h2>
+					<hr>
+					<h3>Thanks for listening, have a cookie. :-)</h3>
+				</section>
+
+				<section>
+					<h2>References and additional information</h2>
+					<li>From the Open Web Application Security Project:</li>
+					<ul>
+						<li>
+							<a href="https://www.owasp.org/index.php/Cross-site_Scripting_%28XSS%29">
+							Cross-site Scripting (XSS)</a>
+						</li>
+						<li>
+							<a href="https://www.owasp.org/index.php/XSS_(Cross_Site_Scripting)_Prevention_Cheat_Sheet">
+							XSS Prevention Cheat Sheet</a>
+						</li>
+						<li>
+							<a href="https://www.owasp.org/index.php/XSS_Filter_Evasion_Cheat_Sheet">
+							XSS Filter Evasion Cheat Sheet</a>
+						</li>
+					</ul>
+					<li>
+						Krzysztof Kotowicz:
+						<a href="http://blog.kotowicz.net/2010/11/xss-track-how-to-quietly-track-whole.html">
+							XSS-Track: How to quietly track a whole website through single XSS
+						</a>
+					</li>
+					<li>Talks in the AppSecEU 2015 conference
+						(<a href="https://www.youtube.com/playlist?list=PLpr-xdpM8wG-ZTcHhFfAeBthNVZVEtkg9">
+							videos available online</a>):
+					</li>
+					<ul>
+						<li>
+							Frederik Braun -
+							<a href="https://www.youtube.com/watch?v=K8ws8qxBJqg">
+								Using a JavaScript CDN That Can Not XSS You - With Subresource Integrity
+							</a>
+						</li>
+						<li>
+							Martin Johns, Sebastian Lekies, Ben Stock -
+							<a href="https://www.youtube.com/watch?v=aQH7UGdjnOA">
+								Client-side Protection Against DOM-Based XSS Attacks Done Right
+							</a>
+						</li>
+					</ul>
+				</section>
+			</div>
+
+		</div>
+
+		<script src="lib/js/head.min.js"></script>
+		<script src="js/reveal.js"></script>
+
+		<script>
+
+			// Full list of configuration options available at:
+			// https://github.com/hakimel/reveal.js#configuration
+			Reveal.initialize({
+				controls: true,
+				progress: true,
+				history: true,
+				center: true,
+
+				transition: 'slide', // none/fade/slide/convex/concave/zoom
+
+				// Optional reveal.js plugins
+				dependencies: [
+					{ src: 'lib/js/classList.js', condition: function() { return !document.body.classList; } },
+					{ src: 'plugin/markdown/marked.js', condition: function() { return !!document.querySelector( '[data-markdown]' ); } },
+					{ src: 'plugin/markdown/markdown.js', condition: function() { return !!document.querySelector( '[data-markdown]' ); } },
+					{ src: 'plugin/highlight/highlight.js', async: true, condition: function() { return !!document.querySelector( 'pre code' ); }, callback: function() { hljs.initHighlightingOnLoad(); } },
+					{ src: 'plugin/zoom-js/zoom.js', async: true },
+					{ src: 'plugin/notes/notes.js', async: true }
+				]
+			});
+
+		</script>
+
+	</body>
+</html>
