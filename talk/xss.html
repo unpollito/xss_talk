@@ -73,7 +73,6 @@
 					</span>
 				</section>
 
-				<!-- Example of nested vertical slides -->
 				<section>
 					<section>
 						<h2>A quick and dirty example</h2>
@@ -83,6 +82,33 @@
 					<section>
 						<iframe src="http://localhost/xss/index.html" style="height: 100%; min-height: 600px; width: 100%; background-color: #FFF"></iframe>
 					</section>
+				</section>
+
+				<section>
+					<h2>What are the risks?</h2>
+					<span class="fragment">
+						<li>Someone could use alert()... }:-)</li>
+					</span>
+					<span class="fragment">
+						<li>Defacing the website</li>
+					</span>
+					<span class="fragment">
+						<li>Stealing cookies (if not protected with
+							<a href="https://en.wikipedia.org/wiki/HttpOnly#HttpOnly_cookie">HttpOnly</a>)</li>
+					</span>
+					<span class="fragment">
+						<li>Making requests as if the user had done them</li>
+					</span>
+					<span class="fragment">
+						<li><strong>Hijacking the entire website</strong></li>
+					</span>
+					<span class="fragment">
+						<ul>
+							<li>An attacker could create an iframe with 100% width and height,
+								put it on top of the actual page,
+								and use the PageState API to modify the URL from the browser's direction bar.</li>
+						</ul>
+					</span>
 				</section>
 
 				<section>
@@ -191,7 +217,7 @@
 						<li>Protection tools in web browsers (e.g., Chrome's XSS Auditor)</li>
 						<span class="fragment">
 							<ul>
-								<li>Just kidding, they don't really work. :-)</li>
+								<li>Just kidding, they don't really work. :-)<br>(See Johns, Lekies and Stock's talk from OWASP AppSecEu'15)</li>
 							</ul>
 						</span>
 					</ul>
@@ -280,9 +306,18 @@
 							XSS-Track: How to quietly track a whole website through single XSS
 						</a>
 					</li>
+					<li>Mike West:
+						<a href="http://www.html5rocks.com/en/tutorials/security/content-security-policy/">
+							An Introduction to Content Security Policy
+						</a>
+					</li>
+				</section>
+
+				<section>
+					<h2>References and additional information (2)</h2>
 					<li>Talks in the AppSecEU 2015 conference
 						(<a href="https://www.youtube.com/playlist?list=PLpr-xdpM8wG-ZTcHhFfAeBthNVZVEtkg9">
-							videos available online</a>):
+							all videos available online</a>):
 					</li>
 					<ul>
 						<li>
